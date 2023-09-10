@@ -1,9 +1,10 @@
 export
     NeoClassicalGrowth,
     compute_steady_state,
-    compute_lₜ, compute_cₜ, compute_λₜ, compute_yₜ, compute_rₜ,
-    bracket_function, bisection_solve_for_kₜ₊₁, dekker_solve_for_kₜ₊₁,
-    extended_path_solve,
+    # compute_lₜ, compute_cₜ, compute_λₜ, compute_yₜ, compute_rₜ,
+    # bracket_function,
+    bisection_solve_for_kₜ₊₁, dekker_solve_for_kₜ₊₁, brent_solve_for_kₜ₊₁,
+    # extended_path_solve,
     solve
 
 
