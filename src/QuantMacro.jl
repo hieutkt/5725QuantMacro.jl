@@ -3,7 +3,6 @@ module QuantMacro
 using LinearAlgebra, SparseArrays
 
 using UnPack: @unpack
-using CairoMakie, ColorSchemes
 
 
 # Write your package code here.
