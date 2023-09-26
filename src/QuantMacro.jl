@@ -1,6 +1,7 @@
 module QuantMacro
 
 using LinearAlgebra, SparseArrays
+using Distributions
 
 using UnPack: @unpack
 
