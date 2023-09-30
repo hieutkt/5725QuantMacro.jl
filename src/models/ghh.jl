@@ -1,8 +1,8 @@
-export GHH,
-    compute_l̂, compute_ĥ, compute_x, compute_c, compute_u,
-    bellman_value, value_function_iterate,
-    maximum_monotonic_and_convex, findmax_convex,
-    GHHSolution, vfi_create_solution
+export GHH, GHHSolution,
+    # compute_l̂, compute_ĥ, compute_x, compute_c, compute_u,
+    # maximum_monotonic_and_convex, findmax_convex,
+    # bellman_value, value_function_iterate
+    solve
 
 
 Base.@kwdef struct GHH <: EconomicsModel
@@ -18,7 +18,7 @@ Base.@kwdef struct GHH <: EconomicsModel
     ω::Float64             = 2          # Rate of capacity depreciation
                                         # Stochastic process
     # Capital-related parameters
-    n::Integer             = 50         # Size of capital grid
+    n::Integer             = 500        # Size of capital grid
     k_min::Float64         = 0.1        # Minimal value for capital grid
     k_max::Float64         = 6.0        # Maximum value of capital grid
     k_grid::Array{Float64} =            # Capital states
@@ -112,9 +112,8 @@ end
 
 
 
-"""Value function iteration"""
-function value_function_iterate(model::GHH; max_iter=1e3, tol=1e-7,
-               max_howard_iter=10)
+"""Solve the GHH model with Value function iteration"""
+function value_function_iterate(model::GHH; max_iter=1e3, tol=1e-7, max_howard_iter=10)
     @unpack β, Π, k_grid, ε_grid, n, m = model
     i = 1
     v_initial = zeros(n, m)
@@ -134,6 +133,12 @@ function value_function_iterate(model::GHH; max_iter=1e3, tol=1e-7,
         a_transition_matrix[i_k, policy[i_k, i_ε], i_ε] = 1
     end
     return GHHSolution(v_fn, policy, a_transition_matrix)
+end
+
+
+"""Solve the GHH model with VFI and Howard improvements, exploiting concavity and monotonicity"""
+function solve(model::GHH; max_iter=1e3, tol=1e-7, max_howard_iter=10)
+    value_function_iterate(model; max_iter=max_iter, tol=tol, max_howard_iter=max_howard_iter)
 end
 
 
@@ -170,26 +175,4 @@ end
 
 function Base.show(io::IO, sol::GHHSolution)
     println("The Aiyagari (1994) model in discrete time is solved.")
-end
-
-
-function vfi_create_solution(model::GHH, v_guess::Array{Float64,2})
-    @unpack β, Π, k_grid, ε_grid, n, m = model
-    # Compute the utility matrix
-    u = [compute_u(k, k′, ε, model) for k in k_grid, ε in ε_grid, k′ in k_grid]
-    # Expected value in the next period
-    @inbounds  𝔼v = Π' * v_guess' |> v -> reshape(repeat(v, inner=(n,1)), n, m, n)
-    # Compute the value function over all posible states
-    v = u + β*𝔼v
-    # Find the optimal desision for each of the current states
-    v_iterated = dropdims(maximum(v, dims=3), dims=3)
-    # Compute the iterated difference
-    optimal_policy_indices = findall(v .== v_iterated)
-    a_transition_matrix = zeros(n, n, m)
-    optimal_policy = zeros(n, m)
-    for idx in optimal_policy_indices
-        optimal_policy[idx[1], idx[2]] = k_grid[idx[3]]
-        a_transition_matrix[idx[1], idx[3], idx[2]] = 1
-    end
-    return GHHSolution(v_iterated, optimal_policy, a_transition_matrix)
 end

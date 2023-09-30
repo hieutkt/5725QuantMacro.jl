@@ -79,12 +79,12 @@ end
 
 """Solve the neo-classical growth model using the extended path method"""
 function extended_path_solve(k_guess, model;
-                             solve_method = brent_solve_f,
+                             non_linear_solver = brent_solve_f,
                               a::Float64=.1, b::Float64=1.5,
                              ε=1e-7, max_iter=1e5, verbose=false)
     @unpack T = model
     # Declare the iterate methods
-    iterate_method(kₜ, kₜ₊₂, t) = solve_method(x -> bracket_function(kₜ, x, kₜ₊₂, t, model), a, b)
+    iterate_method(kₜ, kₜ₊₂, t) = non_linear_solver(x -> bracket_function(kₜ, x, kₜ₊₂, t, model), a, b)
     # Initialize the loop
     iter = 0
     continue_condition = true
@@ -108,11 +108,11 @@ function extended_path_solve(k_guess, model;
 end
 
 
-"""Main interface to solving models"""
+"""Solve the neoclassical growth model, using a nonlinear solver (default to Brent's)"""
 function solve(model::NeoClassicalGrowth;
-                solve_method = brent_solve_f,
+                non_linear_solver = brent_solve_f,
                 a::Float64=.1, b::Float64=1.5)
     kₛₛ, _ = compute_steady_state(model)
     k_guess = LinRange(model.k₀, kₛₛ, model.T) |> collect
-    return extended_path_solve(k_guess, model; solve_method=solve_method, a=a, b=b)
+    return extended_path_solve(k_guess, model; non_linear_solver=non_linear_solver, a=a, b=b)
 end
