@@ -1,11 +1,11 @@
-export DiscreteDP,
+export GHH,
     compute_l̂, compute_ĥ, compute_x, compute_c, compute_u,
     bellman_value, value_function_iterate,
     maximum_monotonic_and_convex, findmax_convex,
-    DiscreteDPSolution, vfi_create_solution
+    GHHSolution, vfi_create_solution
 
 
-Base.@kwdef struct DiscreteDP <: EconomicsModel
+Base.@kwdef struct GHH <: EconomicsModel
     # Preferences related parameters
     θ::Float64             = 1.0        # Relative risk aversion
     γ::Float64             = 2.0        # Labor disutility elasticity
@@ -35,7 +35,7 @@ Base.@kwdef struct DiscreteDP <: EconomicsModel
 end
 
 
-struct DiscreteDPSolution <: ModelSolution
+struct GHHSolution <: ModelSolution
     value_function::Array{Float64}
     optimal_policy::Array{Int64}
     transition_matrix::Array{Int64}
@@ -74,7 +74,7 @@ function compute_u(k, k′, ε, model)
 end
 
 
-function policy_iterate(model::DiscreteDP, v_input::Array{Float64,2}, policy::Array{Int64,2}, u::Array{Float64,3};
+function policy_iterate(model::GHH, v_input::Array{Float64,2}, policy::Array{Int64,2}, u::Array{Float64,3};
                         max_howard_iter = 10, tol=1e-7)
     @unpack β, Π, k_grid, ε_grid, n, m = model
     # Initialize objects
@@ -94,7 +94,7 @@ end
 
 
 """The Bellman equation"""
-function bellman_value(model::DiscreteDP, v_guess::Array{Float64,2}, u; max_howard_iter=10)
+function bellman_value(model::GHH, v_guess::Array{Float64,2}, u; max_howard_iter=10)
     @unpack β, Π, k_grid, ε_grid, n, m = model
     # Expected value in the next period
     @inbounds  𝔼v = Π' * v_guess' |> v -> reshape(repeat(v, inner=(n,1)), n, m, n)
@@ -113,7 +113,7 @@ end
 
 
 """Value function iteration"""
-function value_function_iterate(model::DiscreteDP; max_iter=1e3, tol=1e-7,
+function value_function_iterate(model::GHH; max_iter=1e3, tol=1e-7,
                max_howard_iter=10)
     @unpack β, Π, k_grid, ε_grid, n, m = model
     i = 1
@@ -133,7 +133,7 @@ function value_function_iterate(model::DiscreteDP; max_iter=1e3, tol=1e-7,
     for i_k in 1:n, i_ε in 1:m
         a_transition_matrix[i_k, policy[i_k, i_ε], i_ε] = 1
     end
-    return DiscreteDPSolution(v_fn, policy, a_transition_matrix)
+    return GHHSolution(v_fn, policy, a_transition_matrix)
 end
 
 
@@ -168,12 +168,12 @@ function maximum_monotonic_and_convex(arr::Array{Float64, 3}, n::Int64, m::Int64
 end
 
 
-function Base.show(io::IO, sol::DiscreteDPSolution)
+function Base.show(io::IO, sol::GHHSolution)
     println("The Aiyagari (1994) model in discrete time is solved.")
 end
 
 
-function vfi_create_solution(model::DiscreteDP, v_guess::Array{Float64,2})
+function vfi_create_solution(model::GHH, v_guess::Array{Float64,2})
     @unpack β, Π, k_grid, ε_grid, n, m = model
     # Compute the utility matrix
     u = [compute_u(k, k′, ε, model) for k in k_grid, ε in ε_grid, k′ in k_grid]
@@ -191,5 +191,5 @@ function vfi_create_solution(model::DiscreteDP, v_guess::Array{Float64,2})
         optimal_policy[idx[1], idx[2]] = k_grid[idx[3]]
         a_transition_matrix[idx[1], idx[3], idx[2]] = 1
     end
-    return DiscreteDPSolution(v_iterated, optimal_policy, a_transition_matrix)
+    return GHHSolution(v_iterated, optimal_policy, a_transition_matrix)
 end
