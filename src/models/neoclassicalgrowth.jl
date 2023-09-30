@@ -3,7 +3,6 @@ export
     compute_steady_state,
     # compute_lₜ, compute_cₜ, compute_λₜ, compute_yₜ, compute_rₜ,
     # bracket_function,
-    bisection_solve_for_kₜ₊₁, dekker_solve_for_kₜ₊₁, brent_solve_for_kₜ₊₁,
     # extended_path_solve,
     solve
 
@@ -78,122 +77,14 @@ function bracket_function(kₜ, kₜ₊₁, kₜ₊₂, t, model)
 end
 
 
-"""Bisection algorithm to solve for kₜ₊₁ given values of kₜ and kₜ₊₂"""
-function bisection_solve_for_kₜ₊₁(kₜ::Real, kₜ₊₂::Real, t::Integer, model::NeoClassicalGrowth;
-                                  a=0.1, b=1.5,
-                                  ε=1e-7, max_iter=1e2)
-    f_a = bracket_function(kₜ, a, kₜ₊₂, t, model)
-    f_b = bracket_function(kₜ, b, kₜ₊₂, t, model)
-    # Make sure f(a) and f(b) have opposite signs
-    @assert f_a*f_b < 0 "With f(a) = "*string(f_a)*"& f(b) = "*string(f_b)*": Not a proper bracket!!"
-    # Compute the mid point
-    m = (a + b) / 2
-    f_m = bracket_function(kₜ, m, kₜ₊₂, t, model)
-    # Initialize iterating
-    iter = 0
-    while abs(f_m) >= ε && iter <= max_iter
-        iter += 1
-        f_m*f_b >= 0 ? b = m : a = m
-        m = (a + b) / 2
-        f_m = bracket_function(kₜ, m, kₜ₊₂, t, model)
-    end
-    return m
-end
-
-
-"""Dekker's (1969) method to solve for kₜ₊₁ given values of kₜ and kₜ₊₂"""
-function dekker_solve_for_kₜ₊₁(kₜ::Real, kₜ₊₂::Real, t::Integer, model::NeoClassicalGrowth;
-                               a::Real=.1, b::Real=1.5,
-                               ε=1e-7, max_iter=1e2)
-    # Initiation
-    f_a = bracket_function(kₜ, a, kₜ₊₂, t, model)
-    f_b = bracket_function(kₜ, b, kₜ₊₂, t, model)
-    # Make sure f(a) and f(b) have opposite signs
-    @assert f_a*f_b < 0 "With f(a) = "*string(f_a)*"& f(b) = "*string(f_b)*": Not a proper bracket!!"
-    # Make sure b is the 'better' guess than a
-    abs(f_b) > abs(f_a) ? (a, f_a, b, f_b) = (b, f_b, a, f_a) : nothing
-    # Set the last iteration of b to a
-    c, f_c = a, f_a
-    # Initialize iterating
-    iter = 0
-    while abs(f_b) >= ε && iter <= max_iter
-        iter += 1
-        # Compute the mid point
-        m = (a + b) / 2
-        # Compute the secant point; fall back to m in case s undefined
-        f_b == f_c ? s = m : s = b - f_b * (b-c)/(f_b-f_c)
-        # Update values:
-        # b becomes c, the last iterations' best guess
-        c, f_c = b, f_b
-        # If s is between m and b => s becomes new b, else take m
-        m < s < b || b < s < m ? b = s : b = m
-        f_b = bracket_function(kₜ, b, kₜ₊₂, t, model)
-        # If the b changes sign, assign the previous iteration as a
-        f_b*f_c < 0 ? (a, f_a) = (c, f_c) : nothing
-        # Make sure b is the 'better' guess than a
-        abs(f_b) > abs(f_a) ? (a, f_a, b, f_b) = (b, f_b, a, f_a) : nothing
-    end
-    return b
-end
-
-
-"""Brent's (1973) method to solve for kₜ₊₁ given values of kₜ and kₜ₊₂"""
-function brent_solve_for_kₜ₊₁(kₜ::Real, kₜ₊₂::Real, t::Integer, model::NeoClassicalGrowth;
-                               a::Real=.1, b::Real=1.5,
-                               ε=1e-7, max_iter=1e2)
-    # Initiation
-    f_a = bracket_function(kₜ, a, kₜ₊₂, t, model)
-    f_b = bracket_function(kₜ, b, kₜ₊₂, t, model)
-    # Make sure f(a) and f(b) have opposite signs
-    @assert f_a*f_b < 0 "With f(a) = "*string(f_a)*"& f(b) = "*string(f_b)*": Not a proper bracket!!"
-    # Make sure b is the 'better' guess than a
-    abs(f_b) > abs(f_a) ? (a, f_a, b, f_b) = (b, f_b, a, f_a) : nothing
-    # Set the last iteration of b to a
-    d, f_d = c, f_c = a, f_a
-    # This flags if the previous iteration used a bisection
-    mflag = true
-    # Initialize iterating
-    iter = 0
-    while abs(f_b) >= ε && f_b != 0 && iter <= max_iter
-        iter += 1
-        if f_a != f_c && f_b != f_c && f_a != f_c
-            # Inverse quadratic interpolation
-            s = a*f_b*f_c/((f_a-f_b)*(f_a-f_c)) + b*f_a*f_c/((f_b-f_a)*(f_b-f_c)) + c*f_a*f_b/((f_c-f_a)*(f_c-f_b))
-        else
-            # Compute the secant point; fall back to m in case s undefined
-            f_b == f_c ? s = (a+b)/2 : s = b - f_b * (b - c) / (f_b - f_c)
-        end
-        if  !((3a+b)/4 < s < b || b < s < (3a+b)/4)||
-            (mflag  && ( abs(s-b) >= abs(b-c)/2 )) ||
-            (!mflag && ( abs(s-b) >= abs(c-d)/2 )) ||
-            (mflag  && ( abs(b-c) < ε ))           ||
-            (!mflag && ( abs(c-d) < ε ))
-            # bisection
-            s = (a+b)/2
-            mflag = true
-        else
-            mflag = false
-        end
-        f_s = bracket_function(kₜ, s, kₜ₊₂, t, model)
-        d, f_d = c, f_c
-        c, f_c = b, f_b
-        b, f_b = s, f_s
-        # If the b changes sign, assign the previous iteration as a
-        f_b*f_c < 0 ? (a, f_a) = (c, f_c) : nothing
-        # Make sure b is the 'better' guess than a
-        abs(f_b) > abs(f_a) ? (a, f_a, b, f_b) = (b, f_b, a, f_a) : nothing
-    end
-    return b
-end
-
-
 """Solve the neo-classical growth model using the extended path method"""
 function extended_path_solve(k_guess, model;
-                             solve_method = brent_solve_for_kₜ₊₁,
-                             ε=1e-7, max_iter=1e5)
+                             solve_method = brent_solve_f,
+                              a::Float64=.1, b::Float64=1.5,
+                             ε=1e-7, max_iter=1e5, verbose=false)
     @unpack T = model
     # Declare the iterate methods
-    iterate_method(kₜ, kₜ₊₂, t) = solve_method(kₜ, kₜ₊₂, t, model)
+    iterate_method(kₜ, kₜ₊₂, t) = solve_method(x -> bracket_function(kₜ, x, kₜ₊₂, t, model), a, b)
     # Initialize the loop
     iter = 0
     continue_condition = true
@@ -202,7 +93,9 @@ function extended_path_solve(k_guess, model;
     while continue_condition && iter < max_iter
         # Let's keep updating the situation every 100 iterations
         iter += 1
-        iter % 100 == 0 ? print("Iteration ", string(iter), "s \r") : nothing
+        if verbose && iter % 100 == 0
+             print("Iteration ", string(iter), "s \r")
+        end
         k_new = map(iterate_method, k_guess[1:T-2], k_guess[3:T], 2:T-1)
         # Whether to continue
         continue_condition = any(abs.(k_new .- k_guess[2:T-1]) .>= ε)
@@ -211,15 +104,15 @@ function extended_path_solve(k_guess, model;
         push!(k_iterations, k_guess)
     end
     # Return the results
-    println("Extended path method terminated after ", string(iter), " iterations with pointwise precision ε=", ε)
     return k_iterations
 end
 
 
 """Main interface to solving models"""
 function solve(model::NeoClassicalGrowth;
-               solve_method = brent_solve_for_kₜ₊₁,)
+                solve_method = brent_solve_f,
+                a::Float64=.1, b::Float64=1.5)
     kₛₛ, _ = compute_steady_state(model)
     k_guess = LinRange(model.k₀, kₛₛ, model.T) |> collect
-    return extended_path_solve(k_guess, model; solve_method=solve_method)
+    return extended_path_solve(k_guess, model; solve_method=solve_method, a=a, b=b)
 end

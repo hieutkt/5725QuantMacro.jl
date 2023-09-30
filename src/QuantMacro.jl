@@ -13,8 +13,11 @@ abstract type ModelSolution end
 
 
 include("utility.jl")
-include("models/neoclassicalgrowth.jl")
-include("models/ghh.jl")
 include("utils.jl")
+include("non-linear-solvers.jl")
+# HW1
+include("models/neoclassicalgrowth.jl")
+# HW2
+include("models/ghh.jl")
 
 end
