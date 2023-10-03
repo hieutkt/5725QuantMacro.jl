@@ -6,7 +6,7 @@ function bisection_solve_f(f::Function, a, b; ε=1e-7, max_iter=1e2)
     f_a = f(a)
     f_b = f(b)
     # Make sure f(a) and f(b) have opposite signs
-    @assert f_a*f_b < 0 "With f(a) = "*string(f_a)*"& f(b) = "*string(f_b)*": Not a proper bracket!!"
+    @assert f_a*f_b < 0 "With a = $(a), b = $(b) => f(a) = $(f_a); f(b) = $(f_b): Not a proper bracket!!"
     # Compute the mid point
     m = (a + b) / 2
     f_m = f(m)
@@ -28,7 +28,7 @@ function dekker_solve_f(f::Function, a, b; ε=1e-7, max_iter=1e2)
     f_a = f(a)
     f_b = f(b)
     # Make sure f(a) and f(b) have opposite signs
-    @assert f_a*f_b < 0 "With f(a) = "*string(f_a)*"& f(b) = "*string(f_b)*": Not a proper bracket!!"
+    @assert f_a*f_b < 0 "With a = $(a), b = $(b) => f(a) = $(f_a); f(b) = $(f_b): Not a proper bracket!!"
     # Make sure b is the 'better' guess than a
     abs(f_b) > abs(f_a) ? (a, f_a, b, f_b) = (b, f_b, a, f_a) : nothing
     # Set the last iteration of b to a
@@ -62,7 +62,7 @@ function brent_solve_f(f::Function, a, b; ε=1e-7, max_iter=1e2)
     f_a = f(a)
     f_b = f(b)
     # Make sure f(a) and f(b) have opposite signs
-    @assert f_a*f_b < 0 "With f(a) = "*string(f_a)*"& f(b) = "*string(f_b)*": Not a proper bracket!!"
+    @assert f_a*f_b < 0 "With a = $(a), b = $(b) => f(a) = $(f_a); f(b) = $(f_b): Not a proper bracket!!"
     # Make sure b is the 'better' guess than a
     abs(f_b) > abs(f_a) ? (a, f_a, b, f_b) = (b, f_b, a, f_a) : nothing
     # Set the last iteration of b to a
