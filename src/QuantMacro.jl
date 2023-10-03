@@ -19,5 +19,7 @@ include("non-linear-solvers.jl")
 include("models/neoclassicalgrowth.jl")
 # HW2
 include("models/ghh.jl")
+# HW4
+include("models/incomefluctuations.jl")
 
 end
