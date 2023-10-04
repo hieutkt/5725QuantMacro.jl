@@ -71,8 +71,18 @@ function rouwenhorst_discretize(grid, ρ)
 end
 
 
+"""Linear interpolation"""
 function interpolate_linear(x::Float64, xs::Array{Float64, 1}, fs::Array{Float64,1})
     a = x <= xs[1] ? 1 : x >= xs[end] ? length(xs) - 1 : searchsortedlast(xs, x)
     b = a + 1
     return fs[a] + (x - xs[a]) * (fs[b] - fs[a]) / (xs[b] - xs[a])
+end
+
+
+"""Radial basis interpolation"""
+function interpolate_rbf(x, xs, fs; basis_f = r -> exp(-0.5 * r^2))
+    N = length(xs)
+    A = [basis_f(xs[i] - xs[j]) for i in 1:N, j in 1:N]
+    ω = A \ fs  # Solve the linear problem for weights
+    return sum(ω[i] * basis_f(x - xs[i]) for i in 1:N)
 end
