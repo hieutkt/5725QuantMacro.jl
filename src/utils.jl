@@ -1,6 +1,6 @@
 export HP_filter,
     tauchen_discretize, rouwenhorst_discretize,
-    interpolate_linear
+    interpolate_linear, interpolate_rbf
 
 
 """Hodrick–Prescott time series filter"""
