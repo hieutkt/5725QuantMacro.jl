@@ -7,7 +7,7 @@ export
     solve
 
 
-Base.@kwdef struct NeoClassicalGrowth <: EconomicsModel
+@kwdef struct NeoClassicalGrowth <: EconomicsModel
     σ::Float64          = 2.                 # Elasticity of substitution
     β::Float64          = 0.96               # Discount factor
     θ::Float64          = 0.33               # Factor share of capital

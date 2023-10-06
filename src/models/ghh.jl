@@ -5,7 +5,7 @@ export GHH, GHHSolution,
     solve
 
 
-Base.@kwdef struct GHH <: EconomicsModel
+@kwdef struct GHH <: EconomicsModel
     # Preferences related parameters
     θ::Float64             = 1.0        # Relative risk aversion
     γ::Float64             = 2.0        # Labor disutility elasticity

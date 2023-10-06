@@ -1,7 +1,7 @@
 export IncomeFluctuation, RedistributiveTaxation,
     endogeneous_grid_iteration
 
-Base.@kwdef struct IncomeFluctuation <: EconomicsModel
+@kwdef struct IncomeFluctuation <: EconomicsModel
     # Preferences related parameters
     σ::Float64             = 4.0        # Relative risk aversion
     β::Float64             = 0.93       # Discount rate
@@ -27,7 +27,7 @@ Base.@kwdef struct IncomeFluctuation <: EconomicsModel
 end
 
 
-Base.@kwdef struct RedistributiveTaxation <: EconomicsModel
+@kwdef struct RedistributiveTaxation <: EconomicsModel
     # Preferences related parameters
     σ::Float64             = 4.0        # Relative risk aversion
     β::Float64             = 0.93       # Discount rate

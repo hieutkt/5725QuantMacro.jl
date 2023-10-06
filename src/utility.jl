@@ -19,7 +19,7 @@ struct LogUtility <: AbstractUtility end
 
 
 @doc raw"""Greenwood-Hercowitz-Huffman preferences"""
-Base.@kwdef struct GHHUtility <: AbstractUtility
+@kwdef struct GHHUtility <: AbstractUtility
     θ::Float64 = 1.0
     γ::Float64 = 2.0
 end
