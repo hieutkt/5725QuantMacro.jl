@@ -72,7 +72,7 @@ end
 
 
 """Linear interpolation"""
-function interpolate_linear(x::Float64, xs::Array{Float64, 1}, fs::Array{Float64,1})
+function interpolate_linear(x, xs, fs)
     a = x <= xs[1] ? 1 : x >= xs[end] ? length(xs) - 1 : searchsortedlast(xs, x)
     b = a + 1
     return fs[a] + (x - xs[a]) * (fs[b] - fs[a]) / (xs[b] - xs[a])
