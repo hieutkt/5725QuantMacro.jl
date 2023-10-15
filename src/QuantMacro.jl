@@ -5,6 +5,8 @@ using Distributions
 
 using UnPack: @unpack
 
+# For clean display of model objects
+using Term: termshow
 
 # Write your package code here.
 
@@ -23,5 +25,9 @@ include("models/ghh.jl")
 include("models/incomefluctuations.jl")
 # HW5
 include("models/sovereign-default.jl")
+
+
+# Misc
+include("misc/display.jl")
 
 end
