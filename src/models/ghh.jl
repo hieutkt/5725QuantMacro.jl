@@ -171,8 +171,3 @@ function maximum_monotonic_and_convex(arr::Array{Float64, 3}, n::Int64, m::Int64
     end
     return value, policy
 end
-
-
-function Base.show(io::IO, sol::GHHSolution)
-    println("The Aiyagari (1994) model in discrete time is solved.")
-end
