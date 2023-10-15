@@ -1,6 +1,6 @@
 export HP_filter,
     tauchen_discretize, rouwenhorst_discretize,
-    interpolate_linear, interpolate_rbf
+    interpolate_linear, interpolate_rbf, interpolate_nearest_neighbor
 
 
 """Hodrick–Prescott time series filter"""
@@ -85,4 +85,11 @@ function interpolate_rbf(x, xs, fs; basis_f = r -> exp(-0.5 * r^2))
     A = [basis_f(xs[i] - xs[j]) for i in 1:N, j in 1:N]
     ω = A \ fs  # Solve the linear problem for weights
     return sum(ω[i] * basis_f(x - xs[i]) for i in 1:N)
+end
+
+
+"""Nearest neighbor interpolation """
+function interpolate_nearest_neighbor(x, xs, fs)
+    idx = argmin(abs.(xs .- x))
+    return fs[idx]
 end
