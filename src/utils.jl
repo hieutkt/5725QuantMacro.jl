@@ -53,6 +53,7 @@ function tauchen_discretize(grid, ρ, σₑ)
     return Π
 end
 
+
 @doc raw"""
 The Rouwenhorst method for generating a Markov transition matrix from an AR(1) process
 """
@@ -69,6 +70,26 @@ function rouwenhorst_discretize(grid, ρ)
     end
     return P
 end
+
+
+@doc raw"""
+The Rouwenhorst method for generating a Markov transition matrix from
+a non-stationary AR(1) process
+"""
+function rouwenhorst_discretize_nonstationary(grid, ρ, σₜ, σₜₘ₁)
+    n = length(grid)
+    p = q = (1 + ρ*σₜₘ₁/σₜ)/2
+    P = [p   1-p
+         1-q  q]
+    for size = 3:n
+        z = zeros(Float64, size-1)
+        P = p*[P z; z' 0] + (1-p)*[z P; 0 z'] +
+            (1-q)*[z' 0; P z] + q*[0 z'; z P]
+        P[2:size-1, :] ./= 2
+    end
+    return P
+end
+
 
 
 """Linear interpolation"""
