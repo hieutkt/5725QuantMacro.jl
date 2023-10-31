@@ -1,6 +1,20 @@
-export HP_filter,
+export
+    compute_gini,
+    HP_filter,
     tauchen_discretize, rouwenhorst_discretize,
     interpolate_linear, interpolate_rbf, interpolate_nearest_neighbor
+
+
+"""Compute the Gini coefficient for a vector of inputs"""
+function compute_gini(y)
+    y = sort(y)
+    n = length(y)
+    S = cumsum(y)
+    F = (1:n) / n
+    L = S ./ S[end]
+    return 1 - sum(L)/sum(F)
+end
+
 
 
 """Hodrick–Prescott time series filter"""

@@ -27,6 +27,8 @@ include("models/incomefluctuations.jl")
 include("models/sovereign-default.jl")
 # HW6
 include("models/household-lifecycle.jl")
+# HW7
+include("models/household-finance.jl")
 
 
 # Misc
