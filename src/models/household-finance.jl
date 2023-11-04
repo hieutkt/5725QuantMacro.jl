@@ -70,6 +70,7 @@ end
 end
 
 
+"""Initialize a solution object"""
 function initialize_solution(mdl::HouseholdFinance)
     @unpack n_min, W, n_max, N, M, L = mdl
     sol = HouseholdFinanceSolution()
