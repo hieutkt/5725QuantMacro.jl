@@ -1,5 +1,5 @@
-export AbstractUtility, LogUtility, CRRAUtility, GHHUtility
-
+export AbstractUtility, LogUtility, CRRAUtility, GHHUtility,
+    marginal
 
 abstract type AbstractUtility end
 
@@ -26,7 +26,7 @@ struct CRRAUtility <: AbstractUtility
 end
 
 (u::CRRAUtility)(c) = c > 0 ? c^(1 - u.σ)/(1 - u.σ) : -Inf
-
+marginal(u::CRRAUtility) = c ->  c > 0 ? c^( - u.σ) : Inf
 
 @doc raw"""Greenwood-Hercowitz-Huffman preferences"""
 struct GHHUtility <: AbstractUtility

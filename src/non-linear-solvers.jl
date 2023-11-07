@@ -57,7 +57,7 @@ end
 
 
 """Brent's (1973) method to find root of function f, between [a, b]"""
-function brent_solve_f(f::Function, a, b; ε=1e-7, max_iter=1e2)
+function brent_solve_f(f::Function, a, b; ε=1e-7, max_iter=1e2, verbose = false)
     # Initiation
     f_a = f(a)
     f_b = f(b)
@@ -100,5 +100,6 @@ function brent_solve_f(f::Function, a, b; ε=1e-7, max_iter=1e2)
         # Make sure b is the 'better' guess than a
         abs(f_b) > abs(f_a) ? (a, f_a, b, f_b) = (b, f_b, a, f_a) : nothing
     end
+    verbose ? println("Brent's algorithm terminated with tolerance = $ε after $iter iterations.") : nothing
     return b
 end

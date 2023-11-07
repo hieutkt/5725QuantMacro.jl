@@ -29,6 +29,8 @@ include("models/sovereign-default.jl")
 include("models/household-lifecycle.jl")
 # HW7
 include("models/household-finance.jl")
+# HW8
+include("models/krusell-smith.jl")
 
 
 # Misc
